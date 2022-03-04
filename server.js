@@ -24,7 +24,7 @@ app.get('/api/:id',async (req,res)=>{
     const broswer = await puppeteer.launch()
     const page = await broswer.newPage()
     page.on('response', async(response)=>{
-        console.log(response.url,'url')
+        
     })
 
 
