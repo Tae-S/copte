@@ -13,7 +13,7 @@ app.use(bodyParser.json())
 app.use(cors())
 
 app.get('/',(req,res)=>{
-    res.end('Hello Server')
+    res.render('index.ejs')
 })
 
 app.get('/api/:id',async (req,res)=>{
@@ -23,13 +23,50 @@ app.get('/api/:id',async (req,res)=>{
     const url = `https://www.schemecolor.com/${search}.php`
     const broswer = await puppeteer.launch()
     const page = await broswer.newPage()
-    page.on('response', async(response)=>{
+    // page.on('response', async(response)=>{
         
-    })
+    // })
 
 
     await page.goto(url)
-    await broswer.close()
+    // page.waitForSelector('li')
+    // const textContent = await page.evaluate(() => {
+    //     return document.querySelectorAll('li');
+    // })
+    // console.log(textContent)
+    // for(let i=0; i<textContent.length; i++){
+    //     console.log(textContent[i].textContent)
+    // }
+    // let list = await page.$$('.capi')
+    // let list = await page.$$eval('.capi', li => li.textContent)
+    // for(let i=0; i<list.length; i++){
+    //     console.log(list[i].jsonValue())
+    // }
+    // await page.evaluate(() => 
+    //    Array.from(document.querySelectorAll('.capi'), 
+    //    e =>console.log(e.textContent)));
+    // await broswer.close()
+    const hexCodes = await page.evaluate(_ => {
+        return Array.from(document.querySelectorAll('.capi'),span=>span.textContent)
+    })
+    const nameEx = /Name: ?/g
+    console.log(hexCodes)
+    let reg = await page.evaluate(_=>{
+        return Array.from(document.querySelectorAll('li'),li=>{
+            const t = li.textContent
+            if(t.match(/Name: ?/g)) return t
+            
+        })
+    })
+    reg = reg.filter(r=>r!=null)
+    console.log(reg)
+    // console.log(reg)
+    const palette = []
+    for(let i=0; i<reg.length; i++){
+        palette.push({name: reg[i], hexCode:hexCodes[i]})
+    }
+    console.log(palette)
+    res.end(JSON.stringify(palette))
 })
 
 /**
